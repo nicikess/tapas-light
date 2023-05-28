@@ -1,0 +1,60 @@
+# Dockerfile/Docker-Compose file based on an initial version authored by Alexander Lontke (ASSE, Fall Semester 2021)
+
+version: "3.7"
+
+services:
+  app:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    # Use environment variables instead of application.properties
+    environment:
+     - KEY=VALUE
+    ports: #Just needed when testing from outside the docker network
+     - "8080:8080"    
+    networks:
+      - tapas-network
+
+  tapas-tasks:
+    build:
+      context: ./tapas-tasks
+      dockerfile: Dockerfile
+    # Use environment variables instead of application.properties
+    environment:
+     - KEY=VALUE
+    ports: #Just needed when testing from outside
+     - "8081:8081"    
+    networks:
+      - tapas-network
+
+  tapas-auction-house:
+    build:
+      context: ./tapas-auction-house
+      dockerfile: Dockerfile
+    # Use environment variables instead of application.properties
+    environment:
+     - KEY=VALUE
+    ports: #Just needed when testing from outside
+     - "8082:8082"    
+    networks:
+      - tapas-network
+
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: 8nP7s0a    # Can not be changed again later on
+    volumes:
+      - database:/data/db
+    networks:
+      - tapas-network
+
+#Volume for mongodb. One per server.
+volumes:
+  database:
+  
+networks:
+  tapas-network:
+    driver: bridge
